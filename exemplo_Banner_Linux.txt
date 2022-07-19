@@ -1,0 +1,142 @@
+#!/bin/bash
+############################################
+#                                          #
+#             #
+#                                          #
+#   Unix/Linux    #
+#                       #
+#   E-mail        #
+#                                          #
+###################################################
+# Set Important Information When Loggin to Server #
+###################################################
+### Configuração do History Shell
+export HISTTIMEFORMAT="%d/%m/%Y %T "
+export PS1="$(whoami)@$(hostname)[\$PWD] "
+#####################
+# Bash Colour Codes #
+#####################
+#  I am Dark Red
+red="\033[00;31m"
+
+# I am Bright Red
+RED="\033[01;31m"
+
+# I am Dark Green
+green="\033[00;32m"
+
+# I am Bright Green
+GREEN="\033[01;32m"
+
+# I am Brown
+brown="\033[00;33m"
+
+# I am Yellow
+YELLOW="\033[01;33m"
+
+# I am Dark Blue
+blue="\033[00;34m"
+
+# I am Bright Blue
+BLUE="\033[01;34m"
+
+# I am Dark Magenta
+magenta="\033[00;35m"
+
+# I am Bright Magenta
+MAGENTA="\033[01;35m"
+
+# I am Dark Cyan
+cyan="\033[00;36m"
+
+# I am Bright Cyan
+CYAN="\033[01;36m"
+
+# I am Grey
+white="\033[00;37m"
+
+#  I am White
+WHITE="\033[01;37m"
+
+#Sets No Colour
+NC="\033[00m"
+
+### General Information ###
+#SISTEMA=`cat /etc/custom-motd.txt | grep SISTEMA | awk -F":" '{print $2}' | sed -u 's/#//g' | xargs`
+SISTEMA="Jump Server"
+#AMBIENTE=`cat /etc/custom-motd.txt | grep AMBIENTE | awk -F":" '{print $2}' | sed -u 's/#//g'| xargs`
+AMBIENTE=P
+#EMPRESA=`cat /etc/custom-motd.txt | grep EMPRESA | awk -F":" '{print $2}' | sed -u 's/#//g' | xargs`
+EMPRESA=R
+upSeconds="$(/usr/bin/cut -d. -f1 /proc/uptime)"
+secs=$((${upSeconds}%60))
+mins=$((${upSeconds}/60%60))
+hours=$((${upSeconds}/3600%24))
+dias=$((${upSeconds}/86400))
+UPTIME=`printf "%d dias, %02dh%02dm%02ds" "$dias" "$hours" "$mins" "$secs"`
+IPS=$(echo $(ip -o addr show up primary scope global | while read -r num dev fam addr rest; do echo ${addr%/*}; done))
+DATE=$(date +"%d/%m/%Y %H:%M:%S")
+TIMEZONE=$(timedatectl | grep -i "Time zone" | awk '{print $3 $4 $5}')
+#HOSTNAME=$(uname -n | tr [:lower:] [:upper:])
+HOSTNAME=R
+#OS=$(cat /etc/*release | grep -m 1 "PRETTY_NAME" | sed -e 's/\"//g' | cut -d"=" -f 2)
+OS=$(cat /etc/*release | tail -1)
+
+KERNEL=$(uname -r)
+MEMTOTAL=$(free -h | grep -i "mem" | awk '{print $2}')
+MEMUSED=$(free -m | awk '/Mem/ { printf("%3.1f%%", $3/$2*100) }')
+MEMFREE=$(free -h | awk '{print $4}'| head -2| tail -1)
+SWAPTOTAL=$(free -h | grep -i "swap" | awk '{print $2}')
+SWAPUSED=$(free -m | awk '/Swap/ { printf("%3.1f%%", $3/$2*100) }')
+SWAPFREE=$(free -h | awk '{print $4}'| head -3| tail -1)
+
+### Load CPU Usage ###
+LOAD1=`cat /proc/loadavg | awk {'print $1'}`
+LOAD5=`cat /proc/loadavg | awk {'print $2'}`
+LOAD15=`cat /proc/loadavg | awk {'print $3'}`
+
+### Hardware Information ###
+VENDOR=`cat /sys/class/dmi/id/sys_vendor 2> /dev/null`
+SERIAL=`cat /sys/class/dmi/id/product_serial 2> /dev/null`
+TYPE=`cat /sys/class/dmi/id/product_name 2> /dev/null`
+MODEL_CPU=`cat /proc/cpuinfo | grep -m 1 "model name" |  cut -d":" -f 2 | tr -s ' ' ' '`
+NR_CPU_CORE="`cat /proc/cpuinfo | grep processor | wc -l` core(s)."
+
+### Check system is Virtual or Physical
+CHECK_SYSTEM=$(systemd-detect-virt)
+if [ $CHECK_SYSTEM == "none" ]; then
+       IS_VIRTUAL=(Fisico)
+       CONSOLE=$(cat /etc/custom-motd.txt | grep CONSOLE | awk -F":" '{print $2}' | sed -u 's/#//g' | xargs)
+else
+       IS_VIRTUAL=(Virtual)
+       CONSOLE=$(cat /sys/class/dmi/id/product_name 2> /dev/null)
+fi
+
+echo -e "  ${MAGENTA}######################## #####     ##       #    ######  ######  #    # "
+echo -e "  ${MAGENTA}######################## #    #   #  #      #        #   #       ##   # "
+echo -e "  ${MAGENTA}######################## #    #  #    #     #       #    #####   # #  # "
+echo -e "  ${MAGENTA}              #########  #####   ######     #      #     #       #  # # "
+echo -e "  ${MAGENTA}            #########    #   #   #    #     #     #      #       #   ## "
+echo -e "  ${MAGENTA}          #########      #    #  #    #     #    ######  ######  #    # "
+echo -e "  ${MAGENTA}        #########       ##############################################  "
+echo -e "  ${MAGENTA}      ########          # ${RED}                     ATENCAO !!! ${RED}"
+echo -e "  ${MAGENTA}      ########          # ${RED}NAO ALTERAR ESTE SERVIDOR SEM CONHECIMENTO DA EQUIpe !!!${RED}"
+echo -e "  ${MAGENTA}        ########        # ${WHITE}HOSTNAME.............>${GREEN} ${HOSTNAME} ${MAGENTA}"
+echo -e "  ${MAGENTA}         ########       # ${WHITE}IPs..................>${GREEN} $IPS ${MAGENTA}"
+echo -e "  ${MAGENTA}      #############     # ${WHITE}SISTEMA..............>${GREEN} ${SISTEMA} ${MAGENTA}"
+echo -e "  ${MAGENTA}   #################    # ${WHITE}AMBIENTE.............>${GREEN} ${AMBIENTE} ${MAGENTA}"
+echo -e "  ${MAGENTA}#####################   # ${WHITE}DATA | TIME ZONE.....>${GREEN} ${DATE} | ${TIMEZONE} ${MAGENTA}"
+echo -e " ${MAGENTA}#########     #########  # ${WHITE}SISTEMA OPERACIONAL..>${GREEN} ${OS} ${MAGENTA}"
+echo -e "${MAGENTA}########         ######## # ${WHITE}SYSTEM UPTIME........>${GREEN} ${UPTIME} ${MAGENTA}"
+echo -e "${MAGENTA}#######           ####### # ${WHITE}TIPO | MODELO........>${GREEN} $VENDOR($IS_VIRTUAL) ${MAGENTA}"
+echo -e "${MAGENTA}#######           ####### # ${WHITE}SERIAL NUMBER........>${GREEN} $SERIAL ${MAGENTA}"
+echo -e "${MAGENTA} #######         #######  # ${WHITE}CONSOLE [ REMOTA ]...>${GREEN} $CONSOLE ${MAGENTA}"
+echo -e "${MAGENTA}  ########     ########   # ${WHITE}MODELO | QTDE CPU....>${GREEN} ${MODEL_CPU}  | $NR_CPU_CORE ${MAGENTA}"
+echo -e "${MAGENTA}   ##################     # ${WHITE}CONSUMO CPU..........>${GREEN} $LOAD1, $LOAD5, $LOAD15 (1, 5, 15 min) ${MAGENTA}"
+echo -e "${MAGENTA}      ############        # ${WHITE}CONSUMO MEMORIA......>${GREEN} $MEMTOTAL(Total) | $MEMUSED(Usado) | $MEMFREE(Livre) ${MAGENTA}"
+echo -e "${MAGENTA}         #######          # ${WHITE}CONSUMO SWAP.........>${GREEN} $SWAPTOTAL(Total) | $SWAPUSED(Usado) | $SWAPFREE(Livre) ${MAGENTA}"
+#
+# Reset Terminal Colour Back to Normal
+echo -e "${NC}"
+#######################################################################################################################
+HOSTNAME=$(uname -n | tr [:upper:] [:lower:])
